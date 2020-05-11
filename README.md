@@ -18,8 +18,8 @@ This should run off linux, mac and windows but I have only tested it in windows 
 1. For now you have to be with in the elisa-dl directory
 2. ``conda activate elisa-dl``
 3. ``python elisa_dl.py plateID``
-4. ``conda activate elisa-dl``
 5. You can do a test run with ``python elisa_dl.py test``
+6. Onced finished ``conda deactivate`` to exit the environment
 
 ### Output
 This should automatically generate a report named *plateID*.pdf to inspect the standard curve and see the sample concentrations.
