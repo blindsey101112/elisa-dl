@@ -16,7 +16,8 @@ This should run off linux, mac and windows but I have only tested it in windows 
 ### Running elisa-dl
 
 1. For now you have to be with in the elisa-dl directory
-2. ''python elisa_dl.py *plateID*''
+2. ``python elisa_dl.py plateID``
+3. You can do a test run with ``python elisa_dl.py test``
 
 ### Output
 This should automatically generate a report named *plateID*.pdf to inspect the standard curve and see the sample concentrations.
