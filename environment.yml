@@ -6,6 +6,7 @@ channels:
 dependencies:
   - pip=19.3.1
   - python=3.8
+  - wkhtmltopdf=0.12.3
   - pip:
     - pandas==1.0.1
     - numpy==1.18.4
@@ -13,6 +14,5 @@ dependencies:
     - matplotlib==3.2.1
     - openpyxl==3.0.3
     - pdfkit==0.6.1
-    - wkhtmltopdf
 
 

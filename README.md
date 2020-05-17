@@ -13,6 +13,13 @@ This should run off linux, mac and windows but I have only tested it in windows 
 1. Clone this repository and ``cd elisa-dl``
 2. ``conda env create -f environment.yml``
 
+If you get an error message related to wkhtmltopdf then:
+1. Download it manually from [here](https://wkhtmltopdf.org/downloads.html)
+2. Open the environment.yml file with any text editor. I recommend [notepad++](https://notepad-plus-plus.org/downloads/v7.8.6/).
+3. Delete the line '- wkhtmltopdf=0.12.3' and save the file.
+4. Retry ``conda env create -f environment.yml``
+
+
 ### Running elisa-dl
 
 1. For now you have to be with in the elisa-dl directory
