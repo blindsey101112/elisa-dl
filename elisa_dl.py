@@ -53,6 +53,7 @@ if __name__ == "__main__":
     from plate_plans import get_ods, get_samples
     plate_id = sys.argv[1]
     antigen = sys.argv[2]
+
     plateplan_file = plate_id + "-pplan.xlsx"
     platereader_file = plate_id + "-preader.xlsx"
     ods = get_ods(platereader_file) #retutns python dictionary with ods from plate
@@ -107,11 +108,12 @@ if __name__ == "__main__":
             sample_ods = np.asarray(list(ods[sample].values()))
             mean = sum(sample_ods)/len(sample_ods)
             sample_concs[sample] = round(get_conc(mean, plsq[0]), 6)
-            cv = variation(sample_ods, axis = 0)
+            sd = np.std(sample_ods)
+            cv = sd/mean
 
-            if sample_concs[sample] < std_concs[-1]:
+            if mean < y[-1]:
                 sample_concs[sample] = "BelowCurve"
-            elif sample_concs[sample] > std_concs[0]:
+            elif mean > y[0]:
                 sample_concs[sample] = "AboveCurve"
 
             sample_means[sample] = round(mean, 3)
@@ -122,17 +124,42 @@ if __name__ == "__main__":
             else:
                 pos_neg[sample] = "Neg"
 
+    #Calculate blank and control mean and CV
     blk_ods = np.asarray(list(ods["blk"].values()))
     blk_mean = sum(blk_ods) / len(blk_ods)
-    blk_cv = variation(blk_ods, axis = 0)
+    blk_sd = np.std(blk_ods)
+    blk_cv = blk_sd/blk_mean
 
     pos_ods = np.asarray(list(ods["pos"].values()))
     pos_mean = sum(pos_ods) / len(pos_ods)
-    pos_cv = variation(pos_ods, axis = 0)
+    pos_sd = np.std(pos_ods)
+    pos_cv = pos_sd/pos_mean
 
     neg_ods = np.asarray(list(ods["neg"].values()))
     neg_mean = sum(neg_ods) / len(neg_ods)
-    neg_cv = variation(neg_ods, axis = 0)
+    neg_sd = np.std(neg_ods)
+    neg_cv = neg_sd/neg_mean
+
+    #Calculate CV of each standard
+    std1_as_list = list(ods["std_curve1"].values())
+    std2_as_list = list(ods["std_curve2"].values())
+
+    std_cvs = {}
+    for std in std1_as_list:
+        list_pos = std1_as_list.index(std)
+        st_mean = (std1_as_list[list_pos] + std2_as_list[list_pos])/2
+        std_ods = np.asarray([std1_as_list[list_pos], std2_as_list[list_pos]])
+        st_dev = np.std(std_ods)
+        st_cv = st_dev/st_mean
+        std_cvs[list_pos+1] = st_cv
+
+    bad_stds = {}
+    for std in std_cvs.keys():
+        if std_cvs[std] >= 0.2:
+            bad_stds[std] = std_cvs[std]
+
+    #print(bad_stds)
+    #print(len(bad_stds))
 
 ### Output to pdf file ###
     print("Generating html file")
@@ -143,14 +170,14 @@ if __name__ == "__main__":
                             date,
                             antigens[antigen],
                             fig_path,
-                            round(blk_mean, 2),
-                            round(blk_cv,2),
+                            round(blk_mean, 3),
+                            round(blk_cv,3),
 
-                            round(pos_mean, 2),
-                            round(pos_cv, 2),
+                            round(pos_mean, 3),
+                            round(pos_cv, 3),
 
-                            round(neg_mean, 2),
-                            round(neg_cv, 2),
+                            round(neg_mean, 3),
+                            round(neg_cv, 3),
 
                             sample_dilution["sample01"].split("-")[0],
                                 sample_means["sample01"],
