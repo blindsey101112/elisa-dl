@@ -4,7 +4,6 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
-from scipy.stats import variation
 import pdfkit
 import datetime
 
@@ -151,15 +150,17 @@ if __name__ == "__main__":
         std_ods = np.asarray([std1_as_list[list_pos], std2_as_list[list_pos]])
         st_dev = np.std(std_ods)
         st_cv = st_dev/st_mean
-        std_cvs[list_pos+1] = st_cv
+        std_cvs["Std" + str(list_pos+1)] = st_cv
 
     bad_stds = {}
     for std in std_cvs.keys():
         if std_cvs[std] >= 0.2:
-            bad_stds[std] = std_cvs[std]
+            bad_stds[std] = round(std_cvs[std], 3)
 
-    #print(bad_stds)
-    #print(len(bad_stds))
+    if len(bad_stds) == 0:
+        std_text = "all standards have a CV <0.2"
+    else:
+        std_text = "all standard CVs <0.2 except: %s" % str(bad_stds)
 
 ### Output to pdf file ###
     print("Generating html file")
@@ -178,6 +179,8 @@ if __name__ == "__main__":
 
                             round(neg_mean, 3),
                             round(neg_cv, 3),
+
+                            std_text,
 
                             sample_dilution["sample01"].split("-")[0],
                                 sample_means["sample01"],
@@ -384,4 +387,29 @@ if __name__ == "__main__":
     pdfkit.from_file(html_file, pdf_file)
 
     shutil.move(html_file, os.path.join("html_reports", html_file))
+
+### Output to csv ###
+    print("Creating csv file")
+    csv_file = plate_id + ".csv"
+
+    with open(csv_file, "w") as csvfile:
+        csvfile.write("sampleid, dilution, od, cv, abunits, posneg\n")
+        for sample in ods.keys():
+            if "sample" in sample:
+                if sample_dilution[sample].split("-")[0] != "EMPTY":
+                    csvfile.write(sample_dilution[sample].split("-")[0]
+                                  + ", " + sample_dilution[sample].split("-")[2]
+                                  + ", " + str(sample_means[sample])
+                                  + ", " + str(sample_cv[sample])
+                                  + ", " + str(sample_concs[sample])
+                                  + ", " + pos_neg[sample] + "\n")
+                else:
+                    csvfile.write(sample_dilution[sample]
+                                  + ", NA"
+                                  + ", " + str(sample_means[sample])
+                                  + ", " + str(sample_cv[sample])
+                                  + ", " + str(sample_concs[sample])
+                                  + ", " + pos_neg[sample] + "\n")
+
+
 
