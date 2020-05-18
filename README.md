@@ -30,3 +30,6 @@ If you get an error message related to wkhtmltopdf then:
 
 ### Output
 This should automatically generate a report named *plateID*.pdf to inspect the standard curve and see the sample concentrations.
+
+### Important considerations
+Re-running the script with the same plateID will overwrite any previously

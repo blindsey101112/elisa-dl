@@ -312,7 +312,17 @@ if __name__ == "__main__":
             else:
                 pos_neg[sample] = "Neg"
 
+    blk_ods = np.asarray(list(ods["blk"].values()))
+    blk_mean = sum(blk_ods) / len(blk_ods)
+    blk_cv = variation(blk_ods, axis = 0)
 
+    pos_ods = np.asarray(list(ods["pos"].values()))
+    pos_mean = sum(pos_ods) / len(pos_ods)
+    pos_cv = variation(pos_ods, axis = 0)
+
+    neg_ods = np.asarray(list(ods["neg"].values()))
+    neg_mean = sum(neg_ods) / len(neg_ods)
+    neg_cv = variation(neg_ods, axis = 0)
 
 ### Output to pdf file ###
     print("Generating html file")
@@ -348,9 +358,13 @@ if __name__ == "__main__":
     <h1> Plate Report - %s</h1>
     
     <p> Report generated on %s<p>
-    <p> Antigen: %s</p>
+    <p> <b>Antigen:</b> %s</p>
     
     <p class="centre"><img src="%s" alt="Standard curve" width="450" height="350"/></p>
+    
+    <p> <b>Blanks</b>  mean: %s   CV: %s</p>
+    <p> <b>Positive control </b>  mean: %s   CV: %s</p>
+    <p> <b>Negative control</b>  mean: %s   CV: %s</p>
     
     <table>
       <tr>
@@ -628,6 +642,14 @@ if __name__ == "__main__":
                             date,
                             antigens[antigen],
                             fig_path,
+                            round(blk_mean, 2),
+                            round(blk_cv,2),
+
+                            round(pos_mean, 2),
+                            round(pos_cv, 2),
+
+                            round(neg_mean, 2),
+                            round(neg_cv, 2),
 
                             sample_dilution["sample01"].split("-")[0],
                                 sample_means["sample01"],
