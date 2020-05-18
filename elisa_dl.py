@@ -1,7 +1,6 @@
 import os
 import sys
 import shutil
-from openpyxl import load_workbook
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
@@ -14,206 +13,13 @@ Credit to https://people.duke.edu/~ccc14/pcfb/analysis.html for the code to fit
 the 4 parameter logistic regression for the standard curve
 '''
 
-def get_ods(file):
-    wb = load_workbook(file)
-    od_ws = wb["Photometric1"]
-    ods={}
-    std_curve1 = {}
-    for cell in od_ws["B23":"M23"][0]:
-        std_curve1[cell.coordinate] = cell.value
-    ods["std_curve1"] = std_curve1
-    std_curve2 = {}
-    for cell in od_ws["B24":"M24"][0]:
-        std_curve2[cell.coordinate] = cell.value
-    ods["std_curve2"] = std_curve2
-    pos = {}
-    for cell in od_ws["F22":"G22"][0]:
-        pos[cell.coordinate] = cell.value
-    ods["pos"] = pos
-    blk = {}
-    for cell in od_ws["J22":"M22"][0]:
-        blk[cell.coordinate] = cell.value
-    ods["blk"] =  blk
-    neg = {}
-    for cell in od_ws["H22":"I22"][0]:
-        neg[cell.coordinate] = cell.value
-    ods["neg"] = neg
-    sample01 = {}
-    for cell in od_ws["B17":"C17"][0]:
-        sample01[cell.coordinate] = cell.value
-    ods["sample01"] = sample01
-    sample02 = {}
-    for cell in od_ws["D17":"E17"][0]:
-        sample02[cell.coordinate] = cell.value
-    ods["sample02"] = sample02
-    sample03 = {}
-    for cell in od_ws["F17":"G17"][0]:
-        sample03[cell.coordinate] = cell.value
-    ods["sample03"] = sample03
-    sample04 = {}
-    for cell in od_ws["H17":"I17"][0]:
-        sample04[cell.coordinate] = cell.value
-    ods["sample04"] = sample04
-    sample05 = {}
-    for cell in od_ws["J17":"K17"][0]:
-        sample05[cell.coordinate] = cell.value
-    ods["sample05"] = sample05
-    sample06 = {}
-    for cell in od_ws["L17":"M17"][0]:
-        sample06[cell.coordinate] = cell.value
-    ods["sample06"] = sample06
-    sample07 = {}
-    for cell in od_ws["B18":"C18"][0]:
-        sample07[cell.coordinate] = cell.value
-    ods["sample07"] = sample07
-    sample08 = {}
-    for cell in od_ws["D18":"E18"][0]:
-        sample08[cell.coordinate] = cell.value
-    ods["sample08"] = sample08
-    sample09 = {}
-    for cell in od_ws["F18":"G18"][0]:
-        sample09[cell.coordinate] = cell.value
-    ods["sample09"] = sample09
-    sample10 = {}
-    for cell in od_ws["H18":"I18"][0]:
-        sample10[cell.coordinate] = cell.value
-    ods["sample10"] = sample10
-    sample11 = {}
-    for cell in od_ws["J18":"K18"][0]:
-        sample11[cell.coordinate] = cell.value
-    ods["sample11"] = sample11
-    sample12 = {}
-    for cell in od_ws["L18":"M18"][0]:
-        sample12[cell.coordinate] = cell.value
-    ods["sample12"] = sample12
-    sample13 = {}
-    for cell in od_ws["B19":"C19"][0]:
-        sample13[cell.coordinate] = cell.value
-    ods["sample13"] = sample13
-    sample14 = {}
-    for cell in od_ws["D19":"E19"][0]:
-        sample14[cell.coordinate] = cell.value
-    ods["sample14"] = sample14
-    sample15 = {}
-    for cell in od_ws["F19":"G19"][0]:
-        sample15[cell.coordinate] = cell.value
-    ods["sample15"] = sample15
-    sample16 = {}
-    for cell in od_ws["H19":"I19"][0]:
-        sample16[cell.coordinate] = cell.value
-    ods["sample16"] = sample16
-    sample17 = {}
-    for cell in od_ws["J19":"K19"][0]:
-        sample17[cell.coordinate] = cell.value
-    ods["sample17"] = sample17
-    sample18 = {}
-    for cell in od_ws["L19":"M19"][0]:
-        sample18[cell.coordinate] = cell.value
-    ods["sample18"] = sample18
-    sample19 = {}
-    for cell in od_ws["B20":"C20"][0]:
-        sample19[cell.coordinate] = cell.value
-    ods["sample19"] = sample19
-    sample20 = {}
-    for cell in od_ws["D20":"E20"][0]:
-        sample20[cell.coordinate] = cell.value
-    ods["sample20"] = sample20
-    sample21 = {}
-    for cell in od_ws["F20":"G20"][0]:
-        sample21[cell.coordinate] = cell.value
-    ods["sample21"] = sample21
-    sample22 = {}
-    for cell in od_ws["H20":"I20"][0]:
-        sample22[cell.coordinate] = cell.value
-    ods["sample22"] = sample22
-    sample23 = {}
-    for cell in od_ws["J20":"K20"][0]:
-        sample23[cell.coordinate] = cell.value
-    ods["sample23"] = sample23
-    sample24 = {}
-    for cell in od_ws["L20":"M20"][0]:
-        sample24[cell.coordinate] = cell.value
-    ods["sample24"] = sample24
-    sample25 = {}
-    for cell in od_ws["B21":"C21"][0]:
-        sample25[cell.coordinate] = cell.value
-    ods["sample25"] = sample25
-    sample26 = {}
-    for cell in od_ws["D21":"E21"][0]:
-        sample26[cell.coordinate] = cell.value
-    ods["sample26"] = sample26
-    sample27 = {}
-    for cell in od_ws["F21":"G21"][0]:
-        sample27[cell.coordinate] = cell.value
-    ods["sample27"] = sample27
-    sample28 = {}
-    for cell in od_ws["H21":"I21"][0]:
-        sample28[cell.coordinate] = cell.value
-    ods["sample28"] = sample28
-    sample29 = {}
-    for cell in od_ws["J21":"K21"][0]:
-        sample29[cell.coordinate] = cell.value
-    ods["sample29"] = sample29
-    sample30 = {}
-    for cell in od_ws["L21":"M21"][0]:
-        sample30[cell.coordinate] = cell.value
-    ods["sample30"] = sample30
-    sample31 = {}
-    for cell in od_ws["B22":"C22"][0]:
-        sample31[cell.coordinate] = cell.value
-    ods["sample31"] = sample31
-    sample32 = {}
-    for cell in od_ws["D22":"E22"][0]:
-        sample32[cell.coordinate] = cell.value
-    ods["sample32"] = sample32
-    return ods
-
-def get_samples(file):
-    wb = load_workbook(file)
-    sample_ws = wb["PlatePlan"]
-    sample_dilution = {
-               "sample01" : sample_ws["B17"].value,
-               "sample02" : sample_ws["D17"].value,
-               "sample03" : sample_ws["F17"].value,
-               "sample04" : sample_ws["H17"].value,
-               "sample05" : sample_ws["J17"].value,
-               "sample06": sample_ws["L17"].value,
-               "sample07": sample_ws["B18"].value,
-               "sample08": sample_ws["D18"].value,
-               "sample09": sample_ws["F18"].value,
-               "sample10": sample_ws["H18"].value,
-               "sample11": sample_ws["J18"].value,
-               "sample12": sample_ws["L18"].value,
-               "sample13": sample_ws["B19"].value,
-               "sample14": sample_ws["D19"].value,
-               "sample15": sample_ws["F19"].value,
-               "sample16": sample_ws["H19"].value,
-               "sample17": sample_ws["J19"].value,
-               "sample18": sample_ws["L19"].value,
-               "sample19": sample_ws["B20"].value,
-               "sample20": sample_ws["D20"].value,
-               "sample21": sample_ws["F20"].value,
-               "sample22": sample_ws["H20"].value,
-               "sample23": sample_ws["J20"].value,
-               "sample24": sample_ws["L20"].value,
-               "sample25": sample_ws["B21"].value,
-               "sample26": sample_ws["D21"].value,
-               "sample27": sample_ws["F21"].value,
-               "sample28": sample_ws["H21"].value,
-               "sample29": sample_ws["J21"].value,
-               "sample30": sample_ws["L21"].value,
-               "sample31": sample_ws["B22"].value,
-               "sample32": sample_ws["D22"].value
-               }
-    return sample_dilution
-
 def logistic4(x, A, B, C, D):
-    """4PL lgoistic equation."""
-    asym_dif = A-D
-    con_inflec = x/C
-    gradiant_power = np.sign(con_inflec) * (np.abs(con_inflec)) ** B
-    equation = (asym_dif/(1.0 + gradiant_power) + D)
-    return equation
+    """4PL logistic equation. Returns OD (y) based on with standard concentration (x) """
+    step1 = A-D
+    step2 = x/C
+    step3 = np.sign(step2) * (np.abs(step2)) ** B
+    log_output = (step1/(1.0 + step3) + D)
+    return log_output
 
 def residuals(p, y, x):
     """Deviations of data from fitted 4PL curve"""
@@ -227,6 +33,7 @@ def peval(x, p):
     return logistic4(x, A, B, C, D)
 
 def get_conc(y, p):
+    """returns concentraion (x) with OD (y) input"""
     A,B,C,D = p
     step1 = ((A-D)/(y-D)) - 1
     step2 = np.sign(step1) * (np.abs(step1)) ** (1/B)
@@ -241,18 +48,21 @@ antigens = {"s" : "Spike", "n" : "Nucleocapsid"}
 cut_offs = {"s" : 0.23, "n" : 0.76}
 
 if __name__ == "__main__":
+    sys.path.insert(1, './scripts')
+    from template import html
+    from plate_plans import get_ods, get_samples
     plate_id = sys.argv[1]
     antigen = sys.argv[2]
     plateplan_file = plate_id + "-pplan.xlsx"
     platereader_file = plate_id + "-preader.xlsx"
-    ods = get_ods(platereader_file)
-    sample_dilution = get_samples(plateplan_file)
+    ods = get_ods(platereader_file) #retutns python dictionary with ods from plate
+    sample_dilution = get_samples(plateplan_file) #returns python dictionary with samples names and dilutions
 
     print("Found plateplan file: %s" % plateplan_file)
     print("Found plate reader file: %s" % platereader_file)
     print("Antigen: %s" % antigens[antigen])
 
-    np.set_printoptions(suppress=True)
+    np.set_printoptions(suppress=True) #suppresses scientific display of numbers
 
 ### Fit standard curve using 4 parameter logistic regression ###
     print("Fitting standard curve")
@@ -329,316 +139,7 @@ if __name__ == "__main__":
     now = datetime.datetime.now()
     date = "%s-%s-%s" % (now.day, now.strftime("%b"), now.year)
 
-    html_template = """
-    <html>
-    <body>
-    
-    <style>
-    .centre {
-        text-align: center;
-    }
-    
-    table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      margin-left:auto;margin-right:auto;
-    }
-    
-    td, th {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-    }
-    
-    tr:nth-child(1) {
-      background-color: #dddddd;
-    }
-    </style>
-    
-    <h1> Plate Report - %s</h1>
-    
-    <p> Report generated on %s<p>
-    <p> <b>Antigen:</b> %s</p>
-    
-    <p class="centre"><img src="%s" alt="Standard curve" width="450" height="350"/></p>
-    
-    <p> <b>Blanks</b>  mean: %s   CV: %s</p>
-    <p> <b>Positive control </b>  mean: %s   CV: %s</p>
-    <p> <b>Negative control</b>  mean: %s   CV: %s</p>
-    
-    <table>
-      <tr>
-        <th>S</th>
-        <th>SampleID</th>
-        <th>OD</th>
-        <th>CV</th>
-        <th>Ab-Units</th>
-        <th>Result</th>
-      </tr>
-      <tr>
-        <td>01</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-      <tr>
-        <td>02</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-      <tr>
-        <td>03</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-      <tr>
-        <td>04</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>05</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>06</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-        <td>07</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-      <tr>
-        <td>08</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-      <tr>
-        <td>09</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>
-      <tr>
-        <td>10</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>11</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>12</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>  
-        <td>%s</td>      
-      </tr>
-      <tr>
-        <td>13</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>14</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>15</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>      
-        <td>%s</td>  
-      </tr>
-      <tr>
-        <td>16</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td> 
-        <td>%s</td>       
-      </tr>      
-      <tr>
-        <td>17</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-      </tr>      
-      <tr>
-        <td>18</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-      </tr>
-      <tr>
-        <td>19</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>   
-        <td>%s</td>     
-      </tr>          
-      <tr>
-        <td>20</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td> 
-        <td>%s</td>       
-      </tr>
-      <tr>
-        <td>21</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>    
-        <td>%s</td>    
-      </tr>          
-      <tr>
-        <td>22</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>    
-        <td>%s</td>    
-      </tr>        
-      <tr>
-        <td>23</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>   
-        <td>%s</td>     
-      </tr>  
-      <tr>
-        <td>24</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-        <td>%s</td>
-      </tr>  
-      <tr>
-        <td>25</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-        <td>%s</td>
-      </tr>  
-      <tr>
-        <td>26</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td> 
-        <td>%s</td>       
-      </tr>  
-      <tr>
-        <td>27</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td> 
-        <td>%s</td>       
-      </tr>  
-      <tr>
-        <td>28</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-        <td>%s</td>
-      </tr>  
-      <tr>
-        <td>29</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-        <td>%s</td>
-      </tr>  
-      <tr>
-        <td>30</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>  
-        <td>%s</td>      
-      </tr>  
-      <tr>
-        <td>31</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-        <td>%s</td>
-      </tr>  
-      <tr>
-        <td>32</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>
-        <td>%s</td>        
-        <td>%s</td>
-      </tr>  
-      
-    </table>
-    
-    </body>
-    </html>
-    
-    """
-
-    html = html_template % (plate_id,
+    html_page = html % (plate_id,
                             date,
                             antigens[antigen],
                             fig_path,
@@ -843,14 +344,13 @@ if __name__ == "__main__":
                                 sample_cv["sample32"],
                                 sample_concs["sample32"],
                                 pos_neg["sample32"]
-
                             )
 
     html_file = plate_id + ".html"
     pdf_file = plate_id + ".pdf"
 
     with open(plate_id + ".html", 'w') as htmlfile:
-        htmlfile.write(html)
+        htmlfile.write(html_page)
 
 
     print("Converting html to pdf...")
