@@ -32,4 +32,4 @@ If you get an error message related to wkhtmltopdf then:
 This should automatically generate a report named *plateID*.pdf to inspect the standard curve and see the sample concentrations.
 
 ### Important considerations
-Re-running the script with the same plateID will overwrite any previously
+Re-running the script with the same plateID will overwrite any previously generated files in the elisa-dl with the same filename. So if you have modified the input files in someway and want to generate a second report move the report to another directory before running the script.
