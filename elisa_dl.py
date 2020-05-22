@@ -39,12 +39,23 @@ def get_conc(y, p):
     concentration = step2 * C
     return concentration
 
+def mean_cv(group):
+    """returns mean and cv of a group of wells"""
+    group_ods = np.asarray(list(ods[group].values()))
+    group_mean = sum(group_ods) / len(group_ods)
+    group_sd = np.std(group_ods)
+    group_cv = group_sd / group_mean
+    return [group_mean, group_cv]
+
 std_concs = [1000, 571.4285714, 326.5306122, 186.5889213, 106.6222407, 60.9269947,
              34.81542555, 19.89452888, 11.36830222, 6.496172697, 3.712098684, 2.121199248]
 
+std_curve1_cells = ["B23", "C23", "D23", "E23", "F23", "G23", "H23", "I23", "J23", "K23", "L23", "M23"]
+std_curve2_cells = ["B24", "C24", "D24", "E24", "F24", "G24", "H24", "I24", "J24", "K24", "L24", "M24"]
+
 antigens = {"s" : "Spike", "n" : "Nucleocapsid"}
 
-cut_offs = {"s" : 0.23, "n" : 0.76}
+cut_offs = {"s" : 0.175, "n" : 0.722}
 
 if __name__ == "__main__":
     sys.path.insert(1, './scripts')
@@ -55,14 +66,54 @@ if __name__ == "__main__":
 
     plateplan_file = plate_id + "-pplan.xlsx"
     platereader_file = plate_id + "-preader.xlsx"
+    ignore_file = plate_id + "-ignore.csv"
     ods = get_ods(platereader_file) #retutns python dictionary with ods from plate
     sample_dilution = get_samples(plateplan_file) #returns python dictionary with samples names and dilutions
 
     print("Found plateplan file: %s" % plateplan_file)
     print("Found plate reader file: %s" % platereader_file)
+
+    if ignore_file in os.listdir():
+        print("Found ignore file: %s" % ignore_file)
+
     print("Antigen: %s" % antigens[antigen])
 
     np.set_printoptions(suppress=True) #suppresses scientific display of numbers
+
+### remove bad wells using ignore file ###
+    badwells = []
+    badwells_group = []
+
+    if ignore_file in os.listdir():
+        with open(ignore_file) as infile:
+            for line in infile:
+                badwell = line.split(",")[0]
+                group = line.split(",")[1].replace("\n", "")
+                badwells.append(badwell)
+                badwells_group.append(group)
+
+    #if not in standard curve will delete. If in standard curve will take other standard OD.
+    for group in list(ods.keys()):
+        for well in list(ods[group].keys()):
+            if well in badwells:
+                if well not in std_curve1_cells and well not in std_curve2_cells:
+                    del ods[group][well]
+                else:
+                    if well in std_curve1_cells:
+                        alternate_well = well[0:2] + "4"
+                        ods[group][well] = ods["std_curve2"][alternate_well]
+                    if well in std_curve2_cells:
+                        alternate_well = well[0:2] + "3"
+                        ods[group][well] = ods["std_curve1"][alternate_well]
+
+### subtract mean of blanks from all wells ###
+    blk_mean = mean_cv("blk")[0]
+    blk_cv = mean_cv("blk")[1]
+
+    for group in ods.keys():
+        for well in ods[group].keys():
+            minblk_od = ods[group][well] - blk_mean
+            ods[group][well] = minblk_od
 
 ### Fit standard curve using 4 parameter logistic regression ###
     print("Fitting standard curve")
@@ -96,6 +147,7 @@ if __name__ == "__main__":
 
 
 ### calculate output variables###
+
     print("Calculating concentrations")
     sample_means = {}
     sample_cv = {}
@@ -123,21 +175,6 @@ if __name__ == "__main__":
             else:
                 pos_neg[sample] = "Neg"
 
-    #Calculate blank and control mean and CV
-    blk_ods = np.asarray(list(ods["blk"].values()))
-    blk_mean = sum(blk_ods) / len(blk_ods)
-    blk_sd = np.std(blk_ods)
-    blk_cv = blk_sd/blk_mean
-
-    pos_ods = np.asarray(list(ods["pos"].values()))
-    pos_mean = sum(pos_ods) / len(pos_ods)
-    pos_sd = np.std(pos_ods)
-    pos_cv = pos_sd/pos_mean
-
-    neg_ods = np.asarray(list(ods["neg"].values()))
-    neg_mean = sum(neg_ods) / len(neg_ods)
-    neg_sd = np.std(neg_ods)
-    neg_cv = neg_sd/neg_mean
 
     #Calculate CV of each standard
     std1_as_list = list(ods["std_curve1"].values())
@@ -154,13 +191,22 @@ if __name__ == "__main__":
 
     bad_stds = {}
     for std in std_cvs.keys():
-        if std_cvs[std] >= 0.2:
+        if std_cvs[std] >= 0.1:
             bad_stds[std] = round(std_cvs[std], 3)
 
+### determine conditional output text ###
+
     if len(bad_stds) == 0:
-        std_text = "all standards have a CV <0.2"
+        std_text = "all standards have a CV <0.1"
     else:
-        std_text = "all standard CVs <0.2 except: %s" % str(bad_stds)
+        std_text = "all standard CVs <0.1 except: %s" % str(bad_stds)
+
+    ignore_wells = dict(zip(badwells, badwells_group))
+
+    if len(badwells) == 0:
+        ignore_text = "No wells exlcuded"
+    else:
+        ignore_text = "excluded these wells: %s" % ignore_wells
 
 ### Output to pdf file ###
     print("Generating html file")
@@ -172,15 +218,17 @@ if __name__ == "__main__":
                             antigens[antigen],
                             fig_path,
                             round(blk_mean, 3),
-                            round(blk_cv,3),
+                            round(blk_cv, 3),
 
-                            round(pos_mean, 3),
-                            round(pos_cv, 3),
+                            round(mean_cv("pos")[0], 3),
+                            round(mean_cv("pos")[1], 3),
 
-                            round(neg_mean, 3),
-                            round(neg_cv, 3),
+                            round(mean_cv("neg")[0], 3),
+                            round(mean_cv("neg")[1], 3),
 
                             std_text,
+
+                            ignore_text,
 
                             sample_dilution["sample01"].split("-")[0],
                                 sample_means["sample01"],
@@ -398,7 +446,7 @@ if __name__ == "__main__":
             if "sample" in sample:
                 if sample_dilution[sample].split("-")[0] != "EMPTY":
                     csvfile.write(sample_dilution[sample].split("-")[0]
-                                  + ", " + sample_dilution[sample].split("-")[2]
+                                  + ", " + sample_dilution[sample].split("-")[1]
                                   + ", " + str(sample_means[sample])
                                   + ", " + str(sample_cv[sample])
                                   + ", " + str(sample_concs[sample])

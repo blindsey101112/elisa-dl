@@ -35,6 +35,7 @@ html = """
  <p> <b>Positive control </b>  mean: %s   CV: %s</p>
  <p> <b>Negative control</b>  mean: %s   CV: %s</p>
  <p> <b>Standards</b>  %s</p>
+ <p> <b>Exclusions</b>  %s</p>
 
  <table>
    <tr>
