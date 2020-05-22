@@ -217,6 +217,7 @@ if __name__ == "__main__":
                             date,
                             antigens[antigen],
                             fig_path,
+                            str(cut_offs[antigen]),
                             round(blk_mean, 3),
                             round(blk_cv, 3),
 

@@ -24,19 +24,21 @@ html = """
  }
  </style>
 
- <h1> Plate Report - %s</h1>
+ <h1 style="font-size:24px"> Plate Report - %s</h1>
 
- <p> Report generated on %s<p>
- <p> <b>Antigen:</b> %s</p>
+ <p style="font-size:16px"> Report generated on %s<p>
+ <p style="font-size:16px"> <b>Antigen:</b> %s</p>
 
  <p class="centre"><img src="%s" alt="Standard curve" width="450" height="350"/></p>
 
- <p> <b>Blanks</b>  mean: %s   CV: %s</p>
- <p> <b>Positive control </b>  mean: %s   CV: %s</p>
- <p> <b>Negative control</b>  mean: %s   CV: %s</p>
- <p> <b>Standards</b>  %s</p>
- <p> <b>Exclusions</b>  %s</p>
+ <p style="font-size:12px"> <b>OD cutoff</b> %s</p>   
+ <p style="font-size:12px"> <b>Blanks</b>  mean: %s   CV: %s</p>
+ <p style="font-size:12px"> <b>Positive control </b>  mean: %s   CV: %s</p>
+ <p style="font-size:12px"> <b>Negative control</b>  mean: %s   CV: %s</p>
+ <p style="font-size:12px"> <b>Standards</b>  %s</p>
+ <p style="font-size:12px"> <b>Exclusions</b>  %s</p>
 
+<font size="2">
  <table>
    <tr>
      <th>S</th>
@@ -303,6 +305,7 @@ html = """
    </tr>  
 
  </table>
+ </font>
 
  </body>
  </html>
