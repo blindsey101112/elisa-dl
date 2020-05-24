@@ -106,6 +106,17 @@ if __name__ == "__main__":
                         alternate_well = well[0:2] + "3"
                         ods[group][well] = ods["std_curve1"][alternate_well]
 
+##calculate CV for samples before blank subtracting
+    sample_cv = {}
+    for sample in ods.keys():
+        if "sample" in sample:
+            sample_ods = np.asarray(list(ods[sample].values()))
+            mean = sum(sample_ods)/len(sample_ods)
+            sd = np.std(sample_ods)
+            cv = sd/mean
+            sample_cv[sample] = round(cv, 2)
+
+
 ### subtract mean of blanks from all wells ###
     blk_mean = mean_cv("blk")[0]
     blk_cv = mean_cv("blk")[1]
@@ -150,7 +161,6 @@ if __name__ == "__main__":
 
     print("Calculating concentrations")
     sample_means = {}
-    sample_cv = {}
     sample_concs = {}
     pos_neg = {}
 
@@ -168,7 +178,7 @@ if __name__ == "__main__":
                 sample_concs[sample] = "AboveCurve"
 
             sample_means[sample] = round(mean, 3)
-            sample_cv[sample] = round(cv, 2)
+            #sample_cv[sample] = round(cv, 2)
 
             if sample_means[sample].item() > cut_offs[antigen]:
                 pos_neg[sample] = "Pos"
