@@ -83,6 +83,7 @@ if __name__ == "__main__":
 ### remove bad wells using ignore file ###
     badwells = []
     badwells_group = []
+    bad_std = []
 
     if ignore_file in os.listdir():
         with open(ignore_file) as infile:
@@ -92,7 +93,8 @@ if __name__ == "__main__":
                 badwells.append(badwell)
                 badwells_group.append(group)
 
-    #if not in standard curve will delete. If in standard curve will take other standard OD.
+    #if not in standard curve will delete. If in standard curve will take other standard OD. If both standard bad
+    #add to list and delete below
     for group in list(ods.keys()):
         for well in list(ods[group].keys()):
             if well in badwells:
@@ -101,10 +103,22 @@ if __name__ == "__main__":
                 else:
                     if well in std_curve1_cells:
                         alternate_well = well[0:2] + "4"
-                        ods[group][well] = ods["std_curve2"][alternate_well]
+                        if alternate_well in std_curve2_cells:
+                            bad_std.append(std_curve2_cells.index(alternate_well))
+                            del ods[group][well]
+                        else:
+                            ods[group][well] = ods["std_curve2"][alternate_well]
                     if well in std_curve2_cells:
                         alternate_well = well[0:2] + "3"
-                        ods[group][well] = ods["std_curve1"][alternate_well]
+                        if alternate_well in std_curve1_cells:
+                            del ods[group][well]
+                        else:
+                            ods[group][well] = ods["std_curve1"][alternate_well]
+
+    #delete bad std from from concentration list
+    for std in bad_std:
+        del std_concs[std]
+
 
 ##calculate CV for samples before blank subtracting
     sample_cv = {}
