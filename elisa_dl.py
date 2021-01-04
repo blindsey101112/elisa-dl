@@ -53,7 +53,7 @@ std_concs = [1000, 571.4285714, 326.5306122, 186.5889213, 106.6222407, 60.926994
 std_curve1_cells = ["B23", "C23", "D23", "E23", "F23", "G23", "H23", "I23", "J23", "K23", "L23", "M23"]
 std_curve2_cells = ["B24", "C24", "D24", "E24", "F24", "G24", "H24", "I24", "J24", "K24", "L24", "M24"]
 
-antigens = {"s" : "Spike", "n" : "Nucleocapsid"}
+antigens = {"s" : "Spike", "n" : "Nucleocapsid", "n2": "Nucleocapsid2"}
 
 cut_offs = {"s" : 0.175, "n" : 0.722, , "n2": 0.1905}
 
@@ -63,6 +63,7 @@ if __name__ == "__main__":
     from plate_plans import get_ods, get_samples
     plate_id = sys.argv[1]
     antigen = sys.argv[2]
+    include_pdf = sys.argv[3]
 
     plateplan_file = plate_id + "-pplan.xlsx"
     platereader_file = plate_id + "-preader.xlsx"
@@ -455,9 +456,9 @@ if __name__ == "__main__":
     with open(plate_id + ".html", 'w') as htmlfile:
         htmlfile.write(html_page)
 
-
-    print("Converting html to pdf...")
-    pdfkit.from_file(html_file, pdf_file)
+    if include_pdf == "yes":
+        print("Converting html to pdf...")
+        pdfkit.from_file(html_file, pdf_file)
 
     shutil.move(html_file, os.path.join("html_reports", html_file))
 
