@@ -55,7 +55,7 @@ std_curve2_cells = ["B24", "C24", "D24", "E24", "F24", "G24", "H24", "I24", "J24
 
 antigens = {"s" : "Spike", "n" : "Nucleocapsid", "n2": "Nucleocapsid2"}
 
-cut_offs = {"s" : 0.175, "n" : 0.722, , "n2": 0.1905}
+cut_offs = {"s" : 0.175, "n" : 0.722, "n2": 0.1905}
 
 if __name__ == "__main__":
     sys.path.insert(1, './scripts')
