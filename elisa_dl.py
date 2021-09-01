@@ -13,7 +13,7 @@ the 4 parameter logistic regression for the standard curve
 '''
 
 def logistic4(x, A, B, C, D):
-    """4PL logistic equation. Returns OD (y) based on with standard concentration (x) """
+    """4PL logistic equation. Returns OD (y) based off standard concentration (x) """
     step1 = A-D
     step2 = x/C
     step3 = np.sign(step2) * (np.abs(step2)) ** B
@@ -69,8 +69,13 @@ if __name__ == "__main__":
     from plate_plans import get_ods, get_samples
     plate_id = sys.argv[1]
     antigen = sys.argv[2]
+    if antigen == "N-Spec":
+        antigen = "n"
+    if antigen == "N-Sens":
+        antigen = "n2"
     include_pdf = sys.argv[3]
     std_concs = std_concs_dict[sys.argv[4]]
+    conc_index = sys.argv[5]
 
     plateplan_file = plate_id + "-pplan.xlsx"
     platereader_file = plate_id + "-preader.xlsx"
@@ -175,56 +180,109 @@ if __name__ == "__main__":
 
     fig_name = plate_id + ".png"
     fig_path = os.path.join("figs", fig_name)
+    fig_path_html = os.path.join("html_reports/figs", fig_name)
 
     plt.savefig(fig_path)
+    plt.savefig(fig_path_html)
 
-
-### calculate output variables###
-
-    print("Calculating concentrations")
-    sample_means = {}
-    sample_concs = {}
-    pos_neg = {}
-
-    for sample in ods.keys():
-        if "sample" in sample:
-            sample_ods = np.asarray(list(ods[sample].values()))
-            mean = sum(sample_ods)/len(sample_ods)
-            sample_concs[sample] = round(get_conc(mean, plsq[0]), 6)
-            sd = np.std(sample_ods)
-            cv = sd/mean
-
-            if mean < y[-1]:
-                sample_concs[sample] = "BelowCurve"
-            elif mean > y[0]:
-                sample_concs[sample] = "AboveCurve"
-
-            sample_means[sample] = round(mean, 3)
-            #sample_cv[sample] = round(cv, 2)
-
-            if sample_means[sample].item() > cut_offs[antigen]:
-                pos_neg[sample] = "Pos"
-            else:
-                pos_neg[sample] = "Neg"
-
-
-    #Calculate CV of each standard
+### Calculate CV of each standard and check index QC
     std1_as_list = list(ods["std_curve1"].values())
     std2_as_list = list(ods["std_curve2"].values())
 
     std_cvs = {}
     for std in std1_as_list:
         list_pos = std1_as_list.index(std)
-        st_mean = (std1_as_list[list_pos] + std2_as_list[list_pos])/2
+        st_mean = (std1_as_list[list_pos] + std2_as_list[list_pos]) / 2
         std_ods = np.asarray([std1_as_list[list_pos], std2_as_list[list_pos]])
         st_dev = np.std(std_ods)
-        st_cv = st_dev/st_mean
-        std_cvs["Std" + str(list_pos+1)] = st_cv
+        st_cv = st_dev / st_mean
+        std_cvs["Std" + str(list_pos + 1)] = st_cv
 
     bad_stds = {}
     for std in std_cvs.keys():
         if std_cvs[std] >= 0.1:
             bad_stds[std] = round(std_cvs[std], 3)
+
+    # check and if necessary exclude index standards
+    index_stds = ["Std9", "Std10", "Std11"]
+    failed_index_stds = []
+    for index_std in index_stds:
+        if index_std in bad_stds.keys():
+            failed_index_stds.append(index_std)
+
+    std_means = {"Std09": (std1_as_list[8] + std2_as_list[8]) / 2,
+                 "Std10": (std1_as_list[9] + std2_as_list[9]) / 2,
+                 "Std11": (std1_as_list[10] + std2_as_list[10]) / 2}
+
+### calculate output variables###
+
+    print("Calculating concentrations/index")
+    sample_means = {}
+    sample_concs = {}
+    pos_neg = {}
+
+    if conc_index == "conc":
+        for sample in ods.keys():
+            if "sample" in sample:
+                sample_ods = np.asarray(list(ods[sample].values()))
+                mean = sum(sample_ods)/len(sample_ods)
+                sample_concs[sample] = round(get_conc(mean, plsq[0]), 6)
+                sd = np.std(sample_ods)
+                cv = sd/mean
+
+                if mean < y[-1]:
+                    sample_concs[sample] = "BelowCurve"
+                elif mean > y[0]:
+                    sample_concs[sample] = "AboveCurve"
+
+                sample_means[sample] = round(mean, 3)
+
+                if sample_means[sample].item() > cut_offs[antigen]:
+                    pos_neg[sample] = "Pos"
+                else:
+                    pos_neg[sample] = "Neg"
+
+    index_cutoffs = {"s" : {"Std09":0.643, "Std10":1.087, "Std11":1.707},
+                     "n" : {"Std09":0.825, "Std10":1.287, "Std11":2.049},
+                     "n2": {"Std09":0.340, "Std10":0.541, "Std11":0.873}
+                     }
+
+    if conc_index == "index":
+        for sample in ods.keys():
+            if "sample" in sample:
+                sample_ods = np.asarray(list(ods[sample].values()))
+                mean = sum(sample_ods)/len(sample_ods)
+                sample_concs[sample] = round(get_conc(mean, plsq[0]), 6)
+                sd = np.std(sample_ods)
+                cv = sd/mean
+
+                if mean < y[-1]:
+                    sample_concs[sample] = "BelowCurve"
+                elif mean > y[0]:
+                    sample_concs[sample] = "AboveCurve"
+
+                sample_means[sample] = round(mean, 3)
+
+                sample_indices = {}
+                index_posneg = {}
+
+                for index_std in index_stds:
+                    if index_std not in failed_index_stds:
+                        sample_index = mean/std_means[index_std]
+                        sample_indices[index_std] = sample_index
+                        index_posneg[index_std] = sample_index > index_cutoffs[antigen][index_std]
+
+                #call positive if >= 2 index above cut off
+                pos_index_num = 0
+                for i in index_posneg.values():
+                    if i == True:
+                        pos_index_num += 1
+
+                if pos_index_num >=2:
+                    pos_neg[sample] = "Pos"
+                else:
+                    pos_neg[sample] = "Neg"
+
 
 ### determine conditional output text ###
 
@@ -239,6 +297,11 @@ if __name__ == "__main__":
         ignore_text = "No wells exlcuded"
     else:
         ignore_text = "excluded these wells: %s" % ignore_wells
+
+    if conc_index == "index":
+        if len(failed_index_stds) >= 2:
+            print("Index positive/negative call failed as 2 or more CVs >10%")
+            quit()
 
 ### Output to pdf file ###
     print("Generating html file")
