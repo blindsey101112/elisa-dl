@@ -204,7 +204,7 @@ if __name__ == "__main__":
             bad_stds[std] = round(std_cvs[std], 3)
 
     # check and if necessary exclude index standards
-    index_stds = ["Std9", "Std10", "Std11"]
+    index_stds = ["Std09", "Std10", "Std11"]
     failed_index_stds = []
     for index_std in index_stds:
         if index_std in bad_stds.keys():
