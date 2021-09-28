@@ -311,6 +311,8 @@ if __name__ == "__main__":
     html_page = html % (plate_id,
                             date,
                             antigens[antigen],
+                            sys.argv[4],
+                            sys.argv[5],
                             fig_path,
                             str(cut_offs[antigen]),
                             round(blk_mean, 3),

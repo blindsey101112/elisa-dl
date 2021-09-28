@@ -28,6 +28,8 @@ html = """
 
  <p style="font-size:16px"> Report generated on %s<p>
  <p style="font-size:16px"> <b>Antigen:</b> %s</p>
+ <p style="font-size:16px"> <b>Standard curve:</b> %s</p>
+ <p style="font-size:16px"> <b>Cutoff method:</b> %s</p>
 
  <p class="centre"><img src="%s" alt="Standard curve" width="450" height="350"/></p>
 
