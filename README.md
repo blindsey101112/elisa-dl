@@ -26,7 +26,7 @@ If you get an error message related to wkhtmltopdf then:
 
 1. Make sure you are within the elisa-dl directory ``cd elisa-dl``
 2. ``conda activate elisa-dl``
-3. ``python elisa_dl.py plateID antigen include-pdf std-curve pos-neg-method`` In place of 'antigen' type "s", "n", "n2" for Spike, Nucleoprotein, Nuceloprotein2 (accepted alternative for "n" is "N-Spec" and "N-Sens" in place of "n2"). In place of include-pdf type "yes" or "no". In place of std-curve type "hero" or "who-s" or "who-n". There are 2 options for the positive/negative sample call "index" or "conc". 
+3. ``python elisa_dl.py plateID antigen include-pdf std-curve pos-neg-method plate-reader`` In place of 'antigen' type "s", "n", "n2" for Spike, Nucleoprotein, Nuceloprotein2 (accepted alternative for "n" is "N-Spec" and "N-Sens" in place of "n2"). In place of include-pdf type "yes" or "no". In place of std-curve type "hero" or "who-s" or "who-n". There are 2 options for the positive/negative sample call "index" or "conc". For plate-reader choose either "vario" or "hidex"
 5. You can do a test run with ``python elisa_dl.py test``
 6. Onced finished ``conda deactivate`` to exit the environment
 
