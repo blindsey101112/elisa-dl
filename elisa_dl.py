@@ -78,11 +78,15 @@ if __name__ == "__main__":
     include_pdf = sys.argv[3]
     std_concs = std_concs_dict[sys.argv[4]]
     conc_index = sys.argv[5]
+    platereader_format = sys.argv[6]
 
     plateplan_file = plate_id + "-pplan.xlsx"
     platereader_file = plate_id + "-preader.xlsx"
     ignore_file = plate_id + "-ignore.csv"
-    ods = get_ods(platereader_file) #retutns python dictionary with ods from plate
+    if platereader_format == "vario":
+        ods = get_ods_vario(platereader_file) #retutns python dictionary with ods from plate
+    if platereader_format == "hidex":
+        ods = get_ods_hidex(platereader_file)
     sample_dilution = get_samples(plateplan_file) #returns python dictionary with samples names and dilutions
 
     print("Found plateplan file: %s" % plateplan_file)
