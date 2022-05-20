@@ -68,7 +68,7 @@ cut_offs = {"s" : 0.175, "n" : 0.722, "n2": 0.1905}
 if __name__ == "__main__":
     sys.path.insert(1, './scripts')
     from template import html
-    from plate_plans import get_ods, get_samples
+    from plate_plans import get_ods_hidex, get_ods_vario, get_samples
     plate_id = sys.argv[1]
     antigen = sys.argv[2]
     if antigen == "N-Spec":
